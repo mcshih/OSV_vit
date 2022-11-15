@@ -1,0 +1,7 @@
+*.pt
+*.pth
+*.csv
+
+pretrain/*
+saved_models/*
+deit/
