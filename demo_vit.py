@@ -14,7 +14,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 import timm
-from model import ViT_for_OSV, ViT_for_OSV_v2, ViT_for_OSV_v3
+from model import ViT_for_OSV, ViT_for_OSV_v2, ViT_for_OSV_v3, ViT_for_OSV_overlap
 from sig_dataloader import SigDataset_BH as SigDataset_BH_v1
 from sig_dataloader import SigDataset
 from sig_dataloader_v2 import SigDataset_BH as SigDataset_BH_v2
@@ -165,6 +165,8 @@ def train(opt):
         model = ViT_for_OSV_v2()
     elif opt.model_type == 'v3':
         model = ViT_for_OSV_v3(opt)
+    elif opt.model_type == 'olp':
+        model = ViT_for_OSV_overlap()
     else:
         return NotImplementedError
     model.cuda()
@@ -203,7 +205,6 @@ def train(opt):
             X = X.cuda()
             Y = Y.cuda()
             pred = model(X)
-            #print(pred.shape)
             if isinstance(pred, tuple):
                 loss_0 = bce(pred[0], Y.float())
                 loss_1 = bce(pred[1], Y.float())
@@ -289,6 +290,8 @@ def test(opt):
         model = ViT_for_OSV_v2()
     elif opt.model_type == 'v3':
         model = ViT_for_OSV_v3(opt)
+    elif opt.model_type == 'olp':
+        model = ViT_for_OSV_overlap()
     else:
         return NotImplementedError
     model.cuda()
@@ -317,7 +320,9 @@ def test(opt):
         #plt.imsave('img_0.png', X_val[0,0].squeeze().detach().cpu().numpy())
         #plt.imsave('img_1.png', X_val[0,1].squeeze().detach().cpu().numpy())
         #plt.close()
+        
         pred_val = model(X_val)
+        #pred_val = model.forward_test(X_val)
 
         #_ = model.forward_test(X_val)
 
@@ -344,6 +349,7 @@ def test(opt):
         gt_loss = np.append(gt_loss, Y_val.cpu().detach().numpy())
 
         #data_df = data_df.append({'img_path': path, 'pos_output': pred_val[0].item(), 'neg_output': pred_val[1].item()}, ignore_index=True)
+        #return
                 
     #data_df.to_csv("test_result.csv")
     

@@ -14,7 +14,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from datetime import datetime, timedelta
 import timm
-from model import ViT_for_OSV, ViT_for_OSV_v2, ViT_for_OSV_v3
+from model import ViT_for_OSV, ViT_for_OSV_v2, ViT_for_OSV_v3, ViT_for_OSV_emd, ViT_for_OSV_overlap
 from sig_dataloader import SigDataset
 from sig_dataloader_v2 import SigDataset_BH as SigDataset_BH_v2
 from sig_dataloader_v2 import single_test_dataset
@@ -39,6 +39,12 @@ parser.add_argument('--model_type', type=str, default="v1", help='model type') #
 parser.add_argument('--loss', type=str, default="con", help='select loss') #['bce', 'con']
 
 parser.add_argument('--comment', type=str, default="", help='some note')
+
+###EMD###
+parser.add_argument("--norm", type=str, default='center')
+parser.add_argument("--metric", type=str, default='cosine')
+parser.add_argument('--solver', type=str, default='opencv')
+parser.add_argument('--temperature', type=float, default=1.0)
 
 opt = parser.parse_args()
 
@@ -134,7 +140,7 @@ def get_pct_accuracy(pred: Variable, target, path=None) -> int:
     return accuracy
 
 def test(opt):
-    sigdataset_test = single_test_dataset(opt, './../BHSig260_demo/Bengali/002/B-S-2-G-05.tif', './../BHSig260_demo/Bengali/002/B-S-2-G-23.tif', 1)
+    sigdataset_test = single_test_dataset(opt, './../BHSig260_demo/Bengali/002/B-S-2-G-05.tif', './../BHSig260_demo/Bengali/002/B-S-2-F-06.tif', 1, image_size=opt.imageSize)
     '''
     if 'BHSig260' in opt.data:
         sigdataset_test = SigDataset_BH_v2(opt, opt.data, train=False, image_size=opt.imageSize, mode=opt.data_mode)
@@ -151,6 +157,10 @@ def test(opt):
         model = ViT_for_OSV_v2()
     elif opt.model_type == 'v3':
         model = ViT_for_OSV_v3(vis=True)
+    elif opt.model_type == 'emd':
+        model = ViT_for_OSV_emd(opt)
+    elif opt.model_type == 'olp':
+        model = ViT_for_OSV_overlap()
     else:
         return NotImplementedError
     model.cuda()
