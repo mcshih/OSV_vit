@@ -9,12 +9,18 @@ import math
 
 
 #'''
-model = deit_base_patch16_LS()
+model = deit_base_patch16_LS(img_size=112)
 
-checkpoint = torch.load('/mnt/HDD1/shih/OSV/deit_osv/pretrain/deit_3_base_224_21k.pth')
-model.load_state_dict(checkpoint["model"])
+#checkpoint = torch.load('/mnt/HDD1/shih/OSV/deit_osv/pretrain/deit_3_base_224_21k.pth')
+#model.load_state_dict(checkpoint["model"])
 
 print("success")
+
+X = torch.zeros([2, 3, 112, 112])
+
+out = model.forward_test(X)
+
+print(out.shape)
 #'''
 '''
 class SinkhornDistance(torch.nn.Module):

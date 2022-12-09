@@ -26,32 +26,6 @@ from models_emd.Network import DeepEMD
 
 #pretrain_dist = '/mnt/HDD1/shih/OSV/vit/ViT/pretrain/imagenet21k/ViT-B_16.npz'
 
-class my_deit_model(vit_models):
-    def forward_features_all(self, x):
-        B = x.shape[0]
-        x = self.patch_embed(x)
-
-        cls_tokens = self.cls_token.expand(B, -1, -1)
-        
-        x = x + self.pos_embed
-        
-        x = torch.cat((cls_tokens, x), dim=1)
-            
-        for i , blk in enumerate(self.blocks):
-            x = blk(x)
-            
-        x = self.norm(x)
-        return x
-    
-    def create_my_model(img_size=224):
-        model = my_deit_model(img_size=img_size, patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True,
-        norm_layer=partial(nn.LayerNorm, eps=1e-6),block_layers=Layer_scale_init_Block, Patch_layer=PatchEmbed_v0)
-        checkpoint = torch.load('/mnt/HDD1/shih/OSV/deit_osv/pretrain/deit_3_base_224_21k.pth')
-        model.load_state_dict(checkpoint["model"])
-
-        return model
-
-
 class PatchEmbed_v0(nn.Module):
     """ 2D Image to Patch Embedding
     """
@@ -88,6 +62,15 @@ class PatchEmbed_v0(nn.Module):
             x = x.flatten(2).transpose(1, 2)  # BCHW -> BNC
         x = self.norm(x)
         return x
+
+class my_deit_model(vit_models):
+    def create_my_model(img_size=224):
+        model = my_deit_model(img_size=img_size, patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6),block_layers=Layer_scale_init_Block, Patch_layer=PatchEmbed_v0)
+        checkpoint = torch.load('/mnt/HDD1/shih/OSV/deit_osv/pretrain/deit_3_base_224_21k.pth')
+        model.load_state_dict(checkpoint["model"])
+
+        return model
 
 class ViT_for_OSV(nn.Module):
     def __init__(self, vis=False):
@@ -209,8 +192,10 @@ class ViT_for_OSV_emd(nn.Module):
     def __init__(self, opt, vis=False):
         super(ViT_for_OSV_emd, self).__init__()
         ### deit facebook ###
-        self.model = my_deit_model.create_my_model()
-        self.model.patch_embed.proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
+        #self.model = my_deit_model.create_my_model()
+        #self.model.patch_embed.proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(16, 16))
+        self.model = my_deit_model.create_my_model(img_size=opt.imageSize)
+        self.model.patch_embed.proj = nn.Conv2d(1, 768, kernel_size=(16, 16), stride=(12, 12))
         self.model.head = nn.Identity()
         
         self.pdist = nn.PairwiseDistance(p=2, keepdim = True)

@@ -272,10 +272,10 @@ def train(opt):
                 best_validation_loss = validation_loss
                 last_saved = datetime.utcnow()
 
-            if last_saved + save_every < datetime.utcnow():
-                print("It's been too long since we last saved the model. Saving...")
-                model.save_to_file(os.path.join(models_path, str(validation_loss)))
-                last_saved = datetime.utcnow()
+            #if last_saved + save_every < datetime.utcnow():
+            #    print("It's been too long since we last saved the model. Saving...")
+            #    model.save_to_file(os.path.join(models_path, str(validation_loss)))
+            #    last_saved = datetime.utcnow()
                 
         training_loss = 0.0
         train_acc = val_acc = 0.0

@@ -266,6 +266,38 @@ class vit_models(nn.Module):
         
         return x
 
+    def forward_features_all(self, x):
+        B = x.shape[0]
+        x = self.patch_embed(x)
+
+        cls_tokens = self.cls_token.expand(B, -1, -1)
+        
+        x = x + self.pos_embed
+        
+        x = torch.cat((cls_tokens, x), dim=1)
+            
+        for i , blk in enumerate(self.blocks):
+            x = blk(x)
+            
+        x = self.norm(x)
+        return x
+    
+    def forward_test(self, x):
+        B = x.shape[0]
+        x = self.patch_embed(x)
+
+        #cls_tokens = self.cls_token.expand(B, -1, -1)
+        
+        #x = x + self.pos_embed
+        
+        #x = torch.cat((cls_tokens, x), dim=1)
+            
+        for i , blk in enumerate(self.blocks):
+            x = blk(x)
+            
+        x = self.norm(x)
+        return x
+
 # DeiT III: Revenge of the ViT (https://arxiv.org/abs/2204.07118)
 
 @register_model
