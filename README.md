@@ -6,7 +6,7 @@
 CUDA_VISIBLE_DEVICES=0 python demo_vit.py --data ./../BHSig260/Bengali --name B_1 --batchSize 1 --imageSize 172 --model_type olp --test_only --load "model_weight.pt"
 ```
 
-data: dataset path
+data: dataset path \
 name: model path (./saved_models/B_1/model_weight.pt)
 
 ### test for single pair
